@@ -1,5 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List, murach.business.User, java.util.Date" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,27 +33,18 @@
         <p><strong>Customer Service Email:</strong> ${initParam.custServEmail}</p>
         
         <h3>First two users in session:</h3>
-        
-        <%
-            // Get users from session - SCRIPTLET được phép sử dụng
-            List<User> users = (List<User>) session.getAttribute("users");
-            if (users != null && !users.isEmpty()) {
-                int count = Math.min(users.size(), 2);
-                for (int i = 0; i < count; i++) {
-                    User u = users.get(i);
-        %>
-            <p>User <%= i + 1 %>: <%= u.getEmail() %> - <%= u.getFirstName() %> <%= u.getLastName() %></p>
-        <%
-                }
-        %>
-            <p><em>Total users in session: <%= users.size() %></em></p>
-        <%
-            } else {
-        %>
+
+        <c:if test="${not empty sessionScope.users}">
+            <c:forEach var="u" items="${sessionScope.users}" varStatus="loop" begin="0" end="1">
+                <p>User ${loop.index + 1}: ${u.email} - ${u.firstName} ${u.lastName}</p>
+            </c:forEach>
+            <p><em>Total users in session: ${fn:length(sessionScope.users)}</em></p>
+        </c:if>
+
+        <c:if test="${empty sessionScope.users}">
             <p>No other users in session.</p>
-        <%
-            }
-        %>
+        </c:if>
+
 
         <form action="emailList" method="get">
             <input type="hidden" name="action" value="join">
